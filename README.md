@@ -2,20 +2,52 @@
 
 An AI-powered development platform that enables users to generate, edit, and deploy full-stack applications using natural language instructions.
 
-## 🚀 Tech Stack
+---
+
+## 🚀 Features
+
+- AI-based app generation
+- Full-stack project scaffolding
+- Code editing support
+- Deployment automation
+- REST API integration
+- Authentication & Authorization
+- CI/CD support
+
+---
+
+## 🛠️ Tech Stack
+
+### Backend
 - Java
 - Spring Boot
+- Spring Security
+- Hibernate/JPA
+
+### Database
 - PostgreSQL
-- AWS
+
+### DevOps
 - Docker
 - GitHub Actions
+- AWS
 
-## 📌 Features
-- AI app generation
-- REST APIs
-- Authentication
-- Deployment automation
+### Frontend (Planned)
+- React
+- Tailwind CSS
+
+---
+
+## 📌 Future Enhancements
+
+- AI prompt engine
+- Code generation templates
+- Multi-language support
+- Cloud deployment
+- Team collaboration
+
+---
 
 ## 👨‍💻 Author
-Navneet Singh
 
+Navneet Singh
