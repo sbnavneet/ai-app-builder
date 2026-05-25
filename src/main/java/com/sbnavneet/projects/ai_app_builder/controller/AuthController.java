@@ -21,8 +21,8 @@ import lombok.RequiredArgsConstructor;
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private AuthService authService ;
-    private UserService userService ;
+    private final AuthService authService ;
+    private final UserService userService ;
     
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> authenticate(@RequestBody LoginRequest loginDto){
@@ -30,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> authenticate(@RequestBody SignupRequest signupRequest){
+    public ResponseEntity<AuthResponse> signup(@RequestBody SignupRequest signupRequest){
         return ResponseEntity.ok(authService.signup(signupRequest));
     }
 

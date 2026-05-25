@@ -2,12 +2,13 @@ package com.sbnavneet.projects.ai_app_builder.service.serviceImpl;
 
 import java.util.List;
 
-import org.jspecify.annotations.Nullable;
+import org.springframework.stereotype.Service;
 
 import com.sbnavneet.projects.ai_app_builder.dto.project.FileContentResponse;
 import com.sbnavneet.projects.ai_app_builder.dto.project.FileNode;
 import com.sbnavneet.projects.ai_app_builder.service.FileService;
 
+@Service
 public class FileServiceImpl implements FileService{
 
     @Override

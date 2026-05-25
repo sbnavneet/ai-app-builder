@@ -1,11 +1,13 @@
 package com.sbnavneet.projects.ai_app_builder.service.serviceImpl;
 
+import org.springframework.stereotype.Service;
+
 import com.sbnavneet.projects.ai_app_builder.dto.subscription.CheckoutRequest;
 import com.sbnavneet.projects.ai_app_builder.dto.subscription.CheckoutResponse;
 import com.sbnavneet.projects.ai_app_builder.dto.subscription.PortalResponse;
 import com.sbnavneet.projects.ai_app_builder.dto.subscription.SubscriptionResponse;
 import com.sbnavneet.projects.ai_app_builder.service.SubscriptionService;
-
+@Service
 public class SubscriptionServiceImpl implements SubscriptionService{
 
     @Override

@@ -2,11 +2,14 @@ package com.sbnavneet.projects.ai_app_builder.service.serviceImpl;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.sbnavneet.projects.ai_app_builder.dto.member.InviteMemberRequest;
 import com.sbnavneet.projects.ai_app_builder.dto.member.MemberResponse;
 import com.sbnavneet.projects.ai_app_builder.dto.member.UpdateMemberRoleRequest;
 import com.sbnavneet.projects.ai_app_builder.service.ProjectMemberService;
 
+@Service
 public class ProjectMemberServiceImpl implements ProjectMemberService {
 
     @Override
@@ -16,7 +19,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     }
 
     @Override
-    public MemberResponse inviteMember(Long projectId, InviteMemberRequest request) {
+    public MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId) {
         // TODO Auto-generated method stub
         throw new UnsupportedOperationException("Unimplemented method 'inviteMember'");
     }

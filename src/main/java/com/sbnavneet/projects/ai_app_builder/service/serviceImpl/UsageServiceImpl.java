@@ -1,9 +1,11 @@
 package com.sbnavneet.projects.ai_app_builder.service.serviceImpl;
 
+import org.springframework.stereotype.Service;
+
 import com.sbnavneet.projects.ai_app_builder.dto.subscription.PlanLimitsResponse;
 import com.sbnavneet.projects.ai_app_builder.dto.subscription.UsageTodayResponse;
 import com.sbnavneet.projects.ai_app_builder.service.UsageService;
-
+@Service
 public class UsageServiceImpl implements UsageService{
 
     @Override

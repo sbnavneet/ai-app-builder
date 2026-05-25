@@ -2,7 +2,6 @@ package com.sbnavneet.projects.ai_app_builder.service;
 
 import java.util.List;
 
-import org.jspecify.annotations.Nullable;
 
 import com.sbnavneet.projects.ai_app_builder.dto.member.InviteMemberRequest;
 import com.sbnavneet.projects.ai_app_builder.dto.member.MemberResponse;
@@ -12,7 +11,7 @@ public interface ProjectMemberService {
 
     List<MemberResponse> getMembers(Long projectId, Long userId);
 
-    MemberResponse inviteMember(Long projectId, InviteMemberRequest request);
+    MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId);
 
     MemberResponse updateMemberRole(Long projectId, UpdateMemberRoleRequest request, Long memberId,
             Long userId);

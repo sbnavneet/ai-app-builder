@@ -1,42 +1,70 @@
 package com.sbnavneet.projects.ai_app_builder.service.serviceImpl;
 
+import java.time.Instant;
 import java.util.List;
+
+import org.springframework.stereotype.Service;
 
 import com.sbnavneet.projects.ai_app_builder.dto.project.ProjectRequest;
 import com.sbnavneet.projects.ai_app_builder.dto.project.ProjectResponse;
 import com.sbnavneet.projects.ai_app_builder.dto.project.ProjectSummaryResponse;
+import com.sbnavneet.projects.ai_app_builder.entity.Project;
+import com.sbnavneet.projects.ai_app_builder.entity.User;
+import com.sbnavneet.projects.ai_app_builder.mapper.ProjectMapper;
+import com.sbnavneet.projects.ai_app_builder.repository.ProjectRepository;
+import com.sbnavneet.projects.ai_app_builder.repository.UserRepository;
 import com.sbnavneet.projects.ai_app_builder.service.ProjectService;
 
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+
+@Service
+@RequiredArgsConstructor
+@Transactional
 public class ProjectServiceImpl implements ProjectService{
+
+    private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
+    private final ProjectMapper projectMapper;
 
     @Override
     public List<ProjectSummaryResponse> getUserProjects(Long userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserProjects'");
+        return projectRepository.findAllProjectByOwner(userId)
+            .stream()
+            .map(projectMapper::toProjectSummaryResponse)
+            .toList();
     }
 
     @Override
     public ProjectResponse getUserProjectById(Long id, Long userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getUserProjectById'");
+        Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(userId, id).orElseThrow();
+        return projectMapper.toProjectResponse(project);
     }
 
     @Override
     public ProjectResponse createProject(ProjectRequest request, Long userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'createProject'");
+        User owner = userRepository.findById(userId).orElseThrow();
+        Project project = Project.builder()
+                                 .name(request.name())
+                                 .owner(owner)
+                                 .isPublic(false)
+                                 .build();
+        project = projectRepository.save(project);
+        return projectMapper.toProjectResponse(project);
     }
 
     @Override
     public ProjectResponse updateProject(Long id, ProjectRequest request, Long userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'updateProject'");
+        Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(userId, id).orElseThrow();
+        project = projectMapper.toProjectEntity(request);
+        return projectMapper.toProjectResponse(projectRepository.save(project));
     }
 
     @Override
     public void softDelete(Long id, Long userId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'softDelete'");
+        Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(userId, id).orElseThrow();
+        project.setDeletedAt(Instant.now());
+        projectRepository.save(project);
     }
 
 }

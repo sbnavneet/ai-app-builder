@@ -36,7 +36,7 @@ public class ProjectMemberController {
     @PostMapping
     public ResponseEntity<MemberResponse> inviteMember(@PathVariable Long projectId, @RequestBody InviteMemberRequest request ){
         Long userId = 1L;
-        return ResponseEntity.status(HttpStatus.CREATED).body(projectMemberService.inviteMember(projectId, request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(projectMemberService.inviteMember(projectId, request, userId));
     }
 
     @PatchMapping("/{memberId}")

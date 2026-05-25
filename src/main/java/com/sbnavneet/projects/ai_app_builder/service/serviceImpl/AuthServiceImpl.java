@@ -1,10 +1,13 @@
 package com.sbnavneet.projects.ai_app_builder.service.serviceImpl;
 
+import org.springframework.stereotype.Service;
+
 import com.sbnavneet.projects.ai_app_builder.dto.auth.AuthResponse;
 import com.sbnavneet.projects.ai_app_builder.dto.auth.LoginRequest;
 import com.sbnavneet.projects.ai_app_builder.dto.auth.SignupRequest;
 import com.sbnavneet.projects.ai_app_builder.service.AuthService;
 
+@Service
 public class AuthServiceImpl implements AuthService {
 
     @Override
