@@ -6,9 +6,11 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import com.sbnavneet.projects.ai_app_builder.entity.Project;
 
+@Repository
 public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @Query("""
@@ -21,9 +23,10 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
 
     @Query("""
             SELECT p FROM Project p
+            LEFT JOIN FETCH p.owner
             WHERE p.deletedAt IS NULL 
-            AND p.owner.id = :userId
             AND p.id = :projectId
+            AND p.owner.id = :userId
             """)
     Optional<Project> findAccessibleProjectByOwnerIdAndProjectId(@Param("userId") Long ownerId, @Param("projectId") Long id);
 }

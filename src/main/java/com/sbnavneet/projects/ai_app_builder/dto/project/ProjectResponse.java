@@ -7,7 +7,7 @@ import com.sbnavneet.projects.ai_app_builder.dto.auth.UserProfileResponse;
 public record ProjectResponse(
     Long id,
     String name,
-    Instant createAt,
+    Instant createdAt,
     Instant updatedAt,
     UserProfileResponse owner
 ) {

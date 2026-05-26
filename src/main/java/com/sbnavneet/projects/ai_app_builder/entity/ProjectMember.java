@@ -4,6 +4,7 @@ import java.time.Instant;
 
 import com.sbnavneet.projects.ai_app_builder.enums.ProjectRole;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -13,10 +14,14 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
@@ -24,21 +29,25 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Table(name = "project_members")
+@Builder
 public class ProjectMember {
 
     @EmbeddedId
     ProjectMemberId id;
     
     @ManyToOne
-    @JoinColumn(name = "project_id")
+    @MapsId("projectId")
     Project project;
 
-    @OneToOne
-    @JoinColumn(name = "user_id")
+    @ManyToOne
+    @MapsId("userId")
     User user;
 
     @Enumerated(value = EnumType.STRING)
+    @Column(nullable = false)
     ProjectRole role;
 
     Instant invitedAt;

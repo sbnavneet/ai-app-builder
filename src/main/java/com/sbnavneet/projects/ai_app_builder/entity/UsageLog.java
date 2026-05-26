@@ -13,7 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-@Entity
+// @Entity
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -23,7 +23,7 @@ public class UsageLog {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     
-    
+
     User user;
    
     Project project;

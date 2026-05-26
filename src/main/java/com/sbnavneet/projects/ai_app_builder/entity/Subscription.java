@@ -15,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
-@Entity
+// @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Subscription {
     @Id
