@@ -10,6 +10,7 @@ import com.sbnavneet.projects.ai_app_builder.dto.project.ProjectResponse;
 import com.sbnavneet.projects.ai_app_builder.dto.project.ProjectSummaryResponse;
 import com.sbnavneet.projects.ai_app_builder.entity.Project;
 import com.sbnavneet.projects.ai_app_builder.entity.User;
+import com.sbnavneet.projects.ai_app_builder.error.ResourceNotFoundException;
 import com.sbnavneet.projects.ai_app_builder.mapper.ProjectMapper;
 import com.sbnavneet.projects.ai_app_builder.repository.ProjectRepository;
 import com.sbnavneet.projects.ai_app_builder.repository.UserRepository;
@@ -37,7 +38,7 @@ public class ProjectServiceImpl implements ProjectService{
 
     @Override
     public ProjectResponse getUserProjectById(Long id, Long userId) {
-        Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(userId, id).orElseThrow();
+        Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(userId, id).orElseThrow(() -> new ResourceNotFoundException("Project" , Long.toString(id)));
         return projectMapper.toProjectResponse(project);
     }
 

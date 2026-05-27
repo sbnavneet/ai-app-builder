@@ -14,6 +14,7 @@ import com.sbnavneet.projects.ai_app_builder.dto.auth.UserProfileResponse;
 import com.sbnavneet.projects.ai_app_builder.service.AuthService;
 import com.sbnavneet.projects.ai_app_builder.service.UserService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -25,12 +26,12 @@ public class AuthController {
     private final UserService userService ;
     
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> authenticate(@RequestBody LoginRequest loginDto){
+    public ResponseEntity<AuthResponse> authenticate(@RequestBody @Valid LoginRequest loginDto){
         return ResponseEntity.ok(authService.login(loginDto));
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<AuthResponse> signup(@RequestBody SignupRequest signupRequest){
+    public ResponseEntity<AuthResponse> signup(@RequestBody @Valid SignupRequest signupRequest){
         return ResponseEntity.ok(authService.signup(signupRequest));
     }
 

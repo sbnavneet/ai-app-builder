@@ -1,5 +1,7 @@
 package com.sbnavneet.projects.ai_app_builder.dto.project;
 
+import jakarta.validation.constraints.NotBlank;
+
 public record ProjectRequest(
-    String name
+    @NotBlank String name
 ) {}
