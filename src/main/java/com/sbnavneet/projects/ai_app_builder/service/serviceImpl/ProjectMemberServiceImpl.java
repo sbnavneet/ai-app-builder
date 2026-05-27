@@ -112,6 +112,22 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
        }else{
             throw new RuntimeException("Member doesn't exists");
        }
+    }
+
+    public void acceptInvite(Long projectId, Long memberId, Long userId){
+        Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(userId, projectId).orElseThrow();
+        //Check if user accepting is the project owner
+        if(!project.getOwner().getId().equals(userId)){
+             throw new RuntimeException("Not Allowed");
+        }
+        ProjectMemberId projectMemberId = new ProjectMemberId(project.getId(), memberId);
+        
+        ProjectMember member = projectMemberRepository.findById(projectMemberId).orElseThrow();
+        if(member.getInvitedAt() == null){
+            throw new RuntimeException("Member is not invited");
+        }
+        member.setAcceptedAt(Instant.now());
+        projectMemberRepository.save(member);
         
     }
 }

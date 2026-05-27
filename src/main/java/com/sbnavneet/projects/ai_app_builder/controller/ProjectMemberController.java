@@ -51,5 +51,12 @@ public class ProjectMemberController {
         projectMemberService.deleteMember(projectId, memberId, userId);
         return ResponseEntity.noContent().build();
     }
+
+    @PatchMapping("/acceptInvite/{memberId}")
+    public ResponseEntity<Void> acceptInvite(@PathVariable Long projectId, @PathVariable Long memberId){
+        Long userId = 1L;
+        projectMemberService.acceptInvite(projectId, memberId, userId);
+        return ResponseEntity.noContent().build();
+    }
     
 }

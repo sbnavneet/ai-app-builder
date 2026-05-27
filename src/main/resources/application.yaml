@@ -3,7 +3,7 @@ spring:
     name: ai-app-builder
 
   datasource:
-    url: jdbc:postgresql://localhost:9000/ai_app_builder_db
+    url: jdbc:postgresql://localhost:9000/ai_app_builder_db?options=-c%20TimeZone=Asia/Kolkata
     username: navneetsb
     password: admin0000
     driver-class-name: org.postgresql.Driver

@@ -18,4 +18,7 @@ public interface ProjectMemberService {
 
     void deleteMember(Long projectId, Long memberId, Long userId);
 
+    void acceptInvite(Long projectId, Long memberId, Long userId);
+
+
 }
