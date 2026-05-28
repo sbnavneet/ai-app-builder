@@ -21,8 +21,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse signup(SignupRequest signupRequest) {
-        User user = User.builder().email(signupRequest.email())
-                                  .passwordHash(signupRequest.password())
+        User user = User.builder().username(signupRequest.username())
+                                  .password(signupRequest.password())
                                   .name(signupRequest.name())
                                   .build();
         user = userRepository.save(user);

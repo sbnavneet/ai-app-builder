@@ -47,7 +47,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
        Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(userId, projectId).orElseThrow();
        
        
-       User invitee = userRepository.findByEmail(request.email()).orElseThrow();
+       User invitee = userRepository.findByUsername(request.email()).orElseThrow();
        
        //Check if user inviting himself
        if(invitee.getId().equals(userId)){
