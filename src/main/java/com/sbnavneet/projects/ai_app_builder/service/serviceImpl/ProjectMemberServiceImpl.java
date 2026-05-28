@@ -34,9 +34,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
     @Override
     public List<MemberResponse> getMembers(Long projectId, Long userId) {
-        Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(userId, projectId).orElseThrow();
         List<MemberResponse> memberResponseList = new ArrayList<>();
-        memberResponseList.add(projectMemberMapper.toMemberResponse(project.getOwner()));
         memberResponseList.addAll(projectMemberRepository.findByIdProjectId(projectId)
                                                                                     .stream()
                                                                                     .map(projectMemberMapper::toMemberResponse)
@@ -48,10 +46,6 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     public MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId) {
        Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(userId, projectId).orElseThrow();
        
-       //Check if user inviting is the project owner
-       if(!project.getOwner().getId().equals(userId)){
-            throw new RuntimeException("You are not allowed to invite members");
-       }
        
        User invitee = userRepository.findByEmail(request.email()).orElseThrow();
        
@@ -82,10 +76,6 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
             Long userId) {
         Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(userId, projectId).orElseThrow();
        
-        //Check if user updating is the project owner
-        if(!project.getOwner().getId().equals(userId)){
-             throw new RuntimeException("Not Allowed");
-        }
 
         ProjectMemberId projectMemberId = new ProjectMemberId(project.getId(), memberId);
 
@@ -101,11 +91,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     @Override
     public void deleteMember(Long projectId, Long memberId, Long userId) {
         Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(userId, projectId).orElseThrow();
-        
-        //Check if user deleting is the project owner
-        if(!project.getOwner().getId().equals(userId)){
-             throw new RuntimeException("Not Allowed");
-        }
+
         ProjectMemberId projectMemberId = new ProjectMemberId(project.getId(), memberId);
         if(projectMemberRepository.existsById(projectMemberId)){
             projectMemberRepository.deleteById(projectMemberId);
@@ -116,10 +102,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
 
     public void acceptInvite(Long projectId, Long memberId, Long userId){
         Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(userId, projectId).orElseThrow();
-        //Check if user accepting is the project owner
-        if(!project.getOwner().getId().equals(userId)){
-             throw new RuntimeException("Not Allowed");
-        }
+
         ProjectMemberId projectMemberId = new ProjectMemberId(project.getId(), memberId);
         
         ProjectMember member = projectMemberRepository.findById(projectMemberId).orElseThrow();

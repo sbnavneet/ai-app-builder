@@ -10,8 +10,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +29,12 @@ import lombok.experimental.FieldDefaults;
 @Entity
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Builder
+@Table(name = "projects",
+    indexes = {
+        @Index(name = "idx_projects_updated_at_desc", columnList = "updated_at DESC, deleted_at"),
+        @Index(name = "idx_projects_deleted_at_desc", columnList = "deleted_at")
+    }
+)
 public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,10 +42,6 @@ public class Project {
 
     @Column(nullable = false)
     String name;
-
-    @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
-    User owner;
 
     Boolean isPublic = false;
 
