@@ -3,9 +3,9 @@ spring:
     name: ai-app-builder
 
   datasource:
-    url: jdbc:postgresql://localhost:9000/ai_app_builder_db
-    username: navneetsb
-    password: admin0000
+    url: ${env.DB_URL}
+    username: ${env.DB_USERNAME}
+    password: ${env.DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -18,9 +18,5 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
 
-  security:
-    user:
-      name: navneetsb
-      password: admin123
 jwt:
-  secret-key: a8F9xK2mP7qL4vN1zR6tY3uW8bH5cJ0sD9eG2kLmQ7pX4rT1
+  secret-key: ${env.JWT_SECRET_KEY}
