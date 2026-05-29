@@ -1,9 +1,13 @@
 package com.sbnavneet.projects.ai_app_builder.entity;
 
 import java.time.Instant;
+import java.util.Collection;
+import java.util.List;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +27,7 @@ import lombok.Setter;
 @Builder
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,5 +43,10 @@ public class User {
     private Instant updatedAt;
 
     private Instant deletedAt; //soft-delete
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
 
 }

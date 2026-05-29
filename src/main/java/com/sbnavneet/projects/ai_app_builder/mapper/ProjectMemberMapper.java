@@ -12,6 +12,7 @@ public interface ProjectMemberMapper {
 
     @Mapping(target = "userId", source = "id")
     @Mapping(target = "projectRole", constant = "OWNER")
+    @Mapping(target = "invitedAt", ignore = true)
     MemberResponse toMemberResponse(User user);
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "username", source = "user.username")

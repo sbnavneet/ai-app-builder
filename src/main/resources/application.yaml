@@ -10,10 +10,17 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
 
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
+  security:
+    user:
+      name: navneetsb
+      password: admin123
+jwt:
+  secret-key: a8F9xK2mP7qL4vN1zR6tY3uW8bH5cJ0sD9eG2kLmQ7pX4rT1
