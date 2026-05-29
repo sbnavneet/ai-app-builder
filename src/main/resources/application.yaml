@@ -3,9 +3,9 @@ spring:
     name: ai-app-builder
 
   datasource:
-    url: ${env.DB_URL}
-    username: ${env.DB_USERNAME}
-    password: ${env.DB_PASSWORD}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -19,4 +19,4 @@ spring:
         format_sql: true
 
 jwt:
-  secret-key: ${env.JWT_SECRET_KEY}
+  secret-key: ${JWT_SECRET_KEY}
