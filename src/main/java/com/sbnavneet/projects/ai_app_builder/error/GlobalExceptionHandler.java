@@ -4,9 +4,13 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -28,6 +32,24 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleBadRequest(MethodArgumentNotValidException ex){
         List<ApiFieldError> errors = ex.getBindingResult().getFieldErrors().stream().map(e -> new ApiFieldError(e.getField(), e.getDefaultMessage())).toList();
         ApiError error = new ApiError(HttpStatus.BAD_REQUEST, "Input Validation Failed", errors);
+        return ResponseEntity.status(error.status()).body(error);
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ApiError> handleExpiredJwt(ExpiredJwtException ex){
+        ApiError error = new ApiError(HttpStatus.UNAUTHORIZED, "Token has expired");
+        return ResponseEntity.status(error.status()).body(error);
+    }
+
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ApiError> handleJwtException(JwtException ex){
+        ApiError error = new ApiError(HttpStatus.UNAUTHORIZED, "Invalid token: " + ex.getMessage());
+        return ResponseEntity.status(error.status()).body(error);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex){
+        ApiError error = new ApiError(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         return ResponseEntity.status(error.status()).body(error);
     }
 }

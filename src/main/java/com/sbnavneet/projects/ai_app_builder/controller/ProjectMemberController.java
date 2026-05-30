@@ -29,34 +29,29 @@ public class ProjectMemberController {
     private final ProjectMemberService projectMemberService;
 
     @GetMapping
-    public ResponseEntity<List<MemberResponse>> getMemebers(@PathVariable Long projectId){
-        Long userId = 1L;
-        return ResponseEntity.ok(projectMemberService.getMembers(projectId, userId));
+    public ResponseEntity<List<MemberResponse>> getMemebers(@PathVariable Long projectId){;
+        return ResponseEntity.ok(projectMemberService.getMembers(projectId));
     }
 
     @PostMapping
     public ResponseEntity<MemberResponse> inviteMember(@PathVariable Long projectId, @RequestBody @Valid InviteMemberRequest request ){
-        Long userId = 1L;
-        return ResponseEntity.status(HttpStatus.CREATED).body(projectMemberService.inviteMember(projectId, request, userId));
+        return ResponseEntity.status(HttpStatus.CREATED).body(projectMemberService.inviteMember(projectId, request));
     }
 
     @PatchMapping("/{memberId}")
     public ResponseEntity<MemberResponse> updateMemberRole(@PathVariable Long projectId, @PathVariable Long memberId, @RequestBody @Valid UpdateMemberRoleRequest request){
-        Long userId = 1L;
-        return ResponseEntity.ok(projectMemberService.updateMemberRole(projectId, request, memberId, userId));
+        return ResponseEntity.ok(projectMemberService.updateMemberRole(projectId, request, memberId));
     }
 
     @DeleteMapping("/{memberId}")
     public ResponseEntity<Void> deleteMember(@PathVariable Long projectId, @PathVariable Long memberId){
-        Long userId = 1L;
-        projectMemberService.deleteMember(projectId, memberId, userId);
+        projectMemberService.deleteMember(projectId, memberId);
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/acceptInvite/{memberId}")
-    public ResponseEntity<Void> acceptInvite(@PathVariable Long projectId, @PathVariable Long memberId){
-        Long userId = 1L;
-        projectMemberService.acceptInvite(projectId, memberId, userId);
+    @PatchMapping("/accept")
+    public ResponseEntity<Void> acceptInvite(@PathVariable Long projectId){
+        projectMemberService.acceptInvite(projectId);
         return ResponseEntity.noContent().build();
     }
     

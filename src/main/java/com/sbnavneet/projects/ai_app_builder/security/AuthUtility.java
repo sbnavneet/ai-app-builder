@@ -7,6 +7,9 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import com.sbnavneet.projects.ai_app_builder.entity.User;
@@ -78,5 +81,14 @@ public class AuthUtility {
         Long userId = Long.parseLong(claims.get("userId", String.class));
         String username = claims.getSubject();
         return new JwtUserPrincipal(userId, username, new ArrayList<>());
+    }
+
+    public Long getCurrentUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(authentication == null || !(authentication.getPrincipal() instanceof JwtUserPrincipal)){
+            throw new AuthenticationCredentialsNotFoundException("No JWT Found");
+        }
+        JwtUserPrincipal jwtUserPrincipal = (JwtUserPrincipal) authentication.getPrincipal();
+        return jwtUserPrincipal.userId();
     }
 }

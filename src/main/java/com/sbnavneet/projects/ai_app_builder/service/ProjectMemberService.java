@@ -9,16 +9,15 @@ import com.sbnavneet.projects.ai_app_builder.dto.member.UpdateMemberRoleRequest;
 
 public interface ProjectMemberService {
 
-    List<MemberResponse> getMembers(Long projectId, Long userId);
+    List<MemberResponse> getMembers(Long projectId);
 
-    MemberResponse inviteMember(Long projectId, InviteMemberRequest request, Long userId);
+    MemberResponse inviteMember(Long projectId, InviteMemberRequest request);
 
-    MemberResponse updateMemberRole(Long projectId, UpdateMemberRoleRequest request, Long memberId,
-            Long userId);
+    MemberResponse updateMemberRole(Long projectId, UpdateMemberRoleRequest request, Long memberId);
 
-    void deleteMember(Long projectId, Long memberId, Long userId);
+    void deleteMember(Long projectId, Long memberId);
 
-    void acceptInvite(Long projectId, Long memberId, Long userId);
+    void acceptInvite(Long projectId);
 
 
 }

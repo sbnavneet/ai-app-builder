@@ -12,5 +12,5 @@ import com.sbnavneet.projects.ai_app_builder.entity.ProjectMemberId;
 @Repository
 public interface ProjectMemberRepository extends JpaRepository<ProjectMember, ProjectMemberId> {
 
-    List<ProjectMember> findByIdProjectId(Long projectId);
+    List<ProjectMember> findByIdProjectIdAndAcceptedAtIsNotNull(Long projectId);
 }
