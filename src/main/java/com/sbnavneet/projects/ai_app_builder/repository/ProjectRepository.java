@@ -32,4 +32,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             AND pm.role = com.sbnavneet.projects.ai_app_builder.enums.ProjectRole.OWNER
             """)
     Optional<Project> findAccessibleProjectByOwnerIdAndProjectId(@Param("userId") Long ownerId, @Param("projectId") Long id);
+
+    Optional<Project> findByIdAndDeletedAtIsNull(Long id);
 }

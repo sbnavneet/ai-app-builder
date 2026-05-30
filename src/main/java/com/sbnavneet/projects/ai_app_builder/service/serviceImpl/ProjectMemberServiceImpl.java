@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.sbnavneet.projects.ai_app_builder.dto.member.InviteMemberRequest;
@@ -36,6 +37,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     private final AuthUtility authUtility;
 
     @Override
+    @PreAuthorize("@security.canViewMembers(#projectId)")
     public List<MemberResponse> getMembers(Long projectId) {
         List<MemberResponse> memberResponseList = new ArrayList<>();
         memberResponseList.addAll(projectMemberRepository.findByIdProjectIdAndAcceptedAtIsNotNull(projectId)
@@ -46,6 +48,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     }
 
     @Override
+    @PreAuthorize("@security.canManageMembers(#projectId)")
     public MemberResponse inviteMember(Long projectId, InviteMemberRequest request) {
        Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(authUtility.getCurrentUser(), projectId).orElseThrow();
        
@@ -75,6 +78,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     }
 
     @Override
+    @PreAuthorize("@security.canManageMembers(#projectId)")
     public MemberResponse updateMemberRole(Long projectId, UpdateMemberRoleRequest request, Long memberId) {
         Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(authUtility.getCurrentUser(), projectId).orElseThrow();
        
@@ -91,6 +95,7 @@ public class ProjectMemberServiceImpl implements ProjectMemberService {
     }
 
     @Override
+    @PreAuthorize("@security.canManageMembers(#projectId)")
     public void deleteMember(Long projectId, Long memberId) {
         Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(authUtility.getCurrentUser(), projectId).orElseThrow(() -> new BadRequestException("You are not the owner of the project"));
 

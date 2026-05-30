@@ -3,6 +3,7 @@ package com.sbnavneet.projects.ai_app_builder.service.serviceImpl;
 import java.time.Instant;
 import java.util.List;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.sbnavneet.projects.ai_app_builder.dto.project.ProjectRequest;
@@ -44,8 +45,9 @@ public class ProjectServiceImpl implements ProjectService{
     }
 
     @Override
+    @PreAuthorize("@security.canViewProjects(#id)")
     public ProjectResponse getUserProjectById(Long id) {
-        Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(authUtility.getCurrentUser(), id).orElseThrow(() -> new ResourceNotFoundException("Project" , Long.toString(id)));
+       Project project = projectRepository.findByIdAndDeletedAtIsNull(id).orElseThrow(() -> new ResourceNotFoundException("Project", id.toString()));
         return projectMapper.toProjectResponse(project);
     }
 
@@ -72,6 +74,7 @@ public class ProjectServiceImpl implements ProjectService{
     }
 
     @Override
+    @PreAuthorize("@security.canEditProjects(#id)")
     public ProjectResponse updateProject(Long id, ProjectRequest request) {
         Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(authUtility.getCurrentUser(), id).orElseThrow(() -> new ResourceNotFoundException("Project", id.toString()));
 
@@ -80,6 +83,7 @@ public class ProjectServiceImpl implements ProjectService{
     }
 
     @Override
+    @PreAuthorize("@security.canDeleteProjects(#id)")
     public void softDelete(Long id) {
         Project project = projectRepository.findAccessibleProjectByOwnerIdAndProjectId(authUtility.getCurrentUser(), id).orElseThrow(() -> new ResourceNotFoundException("Project", id.toString()));
         project.setDeletedAt(Instant.now());
