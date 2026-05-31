@@ -37,13 +37,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ExpiredJwtException.class)
     public ResponseEntity<ApiError> handleExpiredJwt(ExpiredJwtException ex){
-        ApiError error = new ApiError(HttpStatus.UNAUTHORIZED, "Token has expired");
+        ApiError error = new ApiError(HttpStatus.UNAUTHORIZED, ex.getLocalizedMessage());
         return ResponseEntity.status(error.status()).body(error);
     }
 
     @ExceptionHandler(JwtException.class)
     public ResponseEntity<ApiError> handleJwtException(JwtException ex){
-        ApiError error = new ApiError(HttpStatus.UNAUTHORIZED, "Invalid token: " + ex.getMessage());
+        ApiError error = new ApiError(HttpStatus.UNAUTHORIZED, "Invalid token: " + ex.getLocalizedMessage());
         return ResponseEntity.status(error.status()).body(error);
     }
 
