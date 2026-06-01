@@ -10,7 +10,6 @@ import com.sbnavneet.projects.ai_app_builder.entity.Plan;
 import com.sbnavneet.projects.ai_app_builder.entity.Subscription;
 import com.sbnavneet.projects.ai_app_builder.entity.User;
 import com.sbnavneet.projects.ai_app_builder.enums.SubscriptionStatus;
-import com.sbnavneet.projects.ai_app_builder.error.BadRequestException;
 import com.sbnavneet.projects.ai_app_builder.error.ResourceNotFoundException;
 import com.sbnavneet.projects.ai_app_builder.mapper.SubscriptionMapper;
 import com.sbnavneet.projects.ai_app_builder.repository.PlanRepository;
@@ -60,7 +59,16 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     @Override
     public void updateSubscription(String id, SubscriptionStatus status, Instant periodStart, Instant periodEnd,
             Boolean cancelAtPeriodEnd, Long planId) {
-            
+        Subscription subscription = getSubscription(id);
+        subscription.setStatus(status);
+        if (periodStart != null) subscription.setCurrentPeriodStart(periodStart);
+        if (periodEnd != null) subscription.setCurrentPeriodEnd(periodEnd);
+        if (cancelAtPeriodEnd != null) subscription.setCancelAtPeriodEnd(cancelAtPeriodEnd);
+        if (planId != null) {
+            Plan plan = getPlan(planId);
+            subscription.setPlan(plan);
+        }
+        subscriptionRepository.save(subscription);
     }
 
     @Override

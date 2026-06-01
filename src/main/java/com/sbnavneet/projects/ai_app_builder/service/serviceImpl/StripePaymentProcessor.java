@@ -64,7 +64,7 @@ public class StripePaymentProcessor implements PaymentProcessor {
             if(stripeCustomerId == null || stripeCustomerId.isEmpty()){
                 params.setCustomerEmail(user.getUsername());
             }else{
-                params.setCustomerEmail(stripeCustomerId);
+                params.setCustomer(stripeCustomerId);
             }
             Session session = Session.create(params.build());
             return new CheckoutResponse(session.getUrl());
@@ -124,11 +124,10 @@ public class StripePaymentProcessor implements PaymentProcessor {
         }
         SubscriptionItem item = subscription.getItems().getData().get(0);
         String priceId = item.getPrice().getId();
-        Instant periodStart = Instant.ofEpochSecond(subscription.getCurrentPeriodStart());
-        Instant periodEnd = Instant.ofEpochSecond(subscription.getCurrentPeriodEnd());
+        Instant periodStart = toInstant(item.getCurrentPeriodStart());
+        Instant periodEnd = toInstant(item.getCurrentPeriodEnd());
         Long planId = resolvePlanId(priceId);
         subscriptionService.updateSubscription(subscription.getId(), status, periodStart, periodEnd, subscription.getCancelAtPeriodEnd(), planId);
-
     }
 
     private void handleCustomerSubscriptionDeleted(Subscription subscription){
@@ -137,29 +136,39 @@ public class StripePaymentProcessor implements PaymentProcessor {
     }
 
     private void handleInvoicePaid(Invoice invoice){
-        String subcriptionId = invoice.getSubscription();
+        String subcriptionId = extractSubscriptionId(invoice);
         if(subcriptionId == null){
             return;
         }
         try{
             Subscription subscription = Subscription.retrieve(subcriptionId);
-            SubscriptionItem item = subscription.getItems().getData().get(0);
-            Instant periodStart = Instant.ofEpochSecond(subscription.getCurrentPeriodStart());
-            Instant periodEnd = Instant.ofEpochSecond(subscription.getCurrentPeriodEnd());
+            var item = subscription.getItems().getData().get(0);
+            Instant periodStart = toInstant(item.getCurrentPeriodStart());
+            Instant periodEnd = toInstant(item.getCurrentPeriodEnd());
             subscriptionService.renewSubscription(subcriptionId, periodStart, periodEnd);
-
         }catch(StripeException ex){
             throw new RuntimeException(ex);
         }
-        
     }
 
     private void handleInvoicePaymentFailed(Invoice invoice){
-        String subcriptionId = invoice.getSubscription();
+        String subcriptionId = extractSubscriptionId(invoice);
         if(subcriptionId == null){
             return;
         }
         subscriptionService.handlePaymentFailure(subcriptionId);
+    }
+
+    private Instant toInstant(Long epoch) {
+        return epoch != null ? Instant.ofEpochSecond(epoch) : null;
+    }
+
+    private String extractSubscriptionId(Invoice invoice) {
+        var parent = invoice.getParent();
+        if (parent == null) return null;
+        var subDetails = parent.getSubscriptionDetails();
+        if (subDetails == null) return null;
+        return subDetails.getSubscription();
     }
 
 // Utility Methods

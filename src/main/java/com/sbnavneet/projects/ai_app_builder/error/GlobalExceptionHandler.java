@@ -52,4 +52,11 @@ public class GlobalExceptionHandler {
         ApiError error = new ApiError(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         return ResponseEntity.status(error.status()).body(error);
     }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ApiError> handleGenericException(Exception ex){
+        ex.printStackTrace();
+        ApiError error = new ApiError(HttpStatus.INTERNAL_SERVER_ERROR, ex.getClass().getSimpleName() + ": " + ex.getMessage());
+        return ResponseEntity.status(error.status()).body(error);
+    }
 }
