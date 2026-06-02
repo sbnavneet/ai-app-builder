@@ -18,10 +18,12 @@ import com.sbnavneet.projects.ai_app_builder.repository.UserRepository;
 import com.sbnavneet.projects.ai_app_builder.security.AuthUtility;
 import com.sbnavneet.projects.ai_app_builder.service.SubscriptionService;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class SubscriptionServiceImpl implements SubscriptionService{
 
     private final SubscriptionMapper subscriptionMapper;
@@ -72,7 +74,11 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     }
 
     @Override
-    public void deleteSubscription(String id) {
+    public void deleteSubscription(String subscriptionId) {
+        Subscription subscription = getSubscription(subscriptionId);
+        if(subscription == null) return;
+        subscription.setStatus(SubscriptionStatus.CANCELED);
+        subscriptionRepository.save(subscription);
 
     }
 
@@ -92,7 +98,12 @@ public class SubscriptionServiceImpl implements SubscriptionService{
 
     @Override
     public void handlePaymentFailure(String subcriptionId) {
-
+        Subscription subscription = getSubscription(subcriptionId);
+        if(subscription.getStatus() == SubscriptionStatus.PAST_DUE){
+            return;
+        }
+        subscription.setStatus(SubscriptionStatus.PAST_DUE);
+        subscriptionRepository.save(subscription);
     }
 
     //Utility Methods

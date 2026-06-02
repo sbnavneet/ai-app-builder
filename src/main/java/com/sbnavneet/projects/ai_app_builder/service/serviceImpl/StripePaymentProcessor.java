@@ -11,6 +11,7 @@ import com.sbnavneet.projects.ai_app_builder.dto.subscription.PortalResponse;
 import com.sbnavneet.projects.ai_app_builder.entity.Plan;
 import com.sbnavneet.projects.ai_app_builder.entity.User;
 import com.sbnavneet.projects.ai_app_builder.enums.SubscriptionStatus;
+import com.sbnavneet.projects.ai_app_builder.error.BadRequestException;
 import com.sbnavneet.projects.ai_app_builder.error.ResourceNotFoundException;
 import com.sbnavneet.projects.ai_app_builder.repository.PlanRepository;
 import com.sbnavneet.projects.ai_app_builder.repository.UserRepository;
@@ -75,7 +76,20 @@ public class StripePaymentProcessor implements PaymentProcessor {
 
     @Override
     public PortalResponse openCustomerPortal() {
-        return null;
+        Long userId = authUtility.getCurrentUser();
+        User user = getUser(userId);
+        String stripeCustomerId = user.getStripeCustomerId();
+        if(stripeCustomerId == null || stripeCustomerId.isEmpty()){
+            throw new BadRequestException("User does not have a Stripe Customer Id, UserId : "+userId);
+        }
+        try{
+            var portalSession = com.stripe.model.billingportal.Session.create(
+            com.stripe.param.billingportal.SessionCreateParams.builder().setCustomer(stripeCustomerId).setReturnUrl(frontEndUrl).build()
+            );
+             return new PortalResponse(portalSession.getUrl());
+        }catch(StripeException ex){
+            throw new RuntimeException(ex);
+        }    
     }
 
     @Override
@@ -158,6 +172,8 @@ public class StripePaymentProcessor implements PaymentProcessor {
         }
         subscriptionService.handlePaymentFailure(subcriptionId);
     }
+    
+// Utility Methods
 
     private Instant toInstant(Long epoch) {
         return epoch != null ? Instant.ofEpochSecond(epoch) : null;
@@ -170,8 +186,6 @@ public class StripePaymentProcessor implements PaymentProcessor {
         if (subDetails == null) return null;
         return subDetails.getSubscription();
     }
-
-// Utility Methods
 
     public SubscriptionStatus mapStripeStatusToEnum(String status){
 
