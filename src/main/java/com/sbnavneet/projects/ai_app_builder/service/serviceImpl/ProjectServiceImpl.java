@@ -14,6 +14,7 @@ import com.sbnavneet.projects.ai_app_builder.entity.ProjectMember;
 import com.sbnavneet.projects.ai_app_builder.entity.ProjectMemberId;
 import com.sbnavneet.projects.ai_app_builder.entity.User;
 import com.sbnavneet.projects.ai_app_builder.enums.ProjectRole;
+import com.sbnavneet.projects.ai_app_builder.error.BadRequestException;
 import com.sbnavneet.projects.ai_app_builder.error.ResourceNotFoundException;
 import com.sbnavneet.projects.ai_app_builder.mapper.ProjectMapper;
 import com.sbnavneet.projects.ai_app_builder.repository.ProjectMemberRepository;
@@ -21,6 +22,7 @@ import com.sbnavneet.projects.ai_app_builder.repository.ProjectRepository;
 import com.sbnavneet.projects.ai_app_builder.repository.UserRepository;
 import com.sbnavneet.projects.ai_app_builder.security.AuthUtility;
 import com.sbnavneet.projects.ai_app_builder.service.ProjectService;
+import com.sbnavneet.projects.ai_app_builder.service.SubscriptionService;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class ProjectServiceImpl implements ProjectService{
     private final ProjectMapper projectMapper;
     private final ProjectMemberRepository projectMemberRepository;
     private final AuthUtility authUtility;
+    private final SubscriptionService subscriptionService;
 
     @Override
     public List<ProjectSummaryResponse> getUserProjects() {
@@ -53,6 +56,11 @@ public class ProjectServiceImpl implements ProjectService{
 
     @Override
     public ProjectResponse createProject(ProjectRequest request) {
+        
+        if(!subscriptionService.canCreateNewProject()){
+            throw new BadRequestException("User cannot create more project");
+        }
+        
         User owner = userRepository.getReferenceById(authUtility.getCurrentUser());
         Project project = Project.builder()
                                  .name(request.name())

@@ -13,6 +13,7 @@ import com.sbnavneet.projects.ai_app_builder.enums.SubscriptionStatus;
 import com.sbnavneet.projects.ai_app_builder.error.ResourceNotFoundException;
 import com.sbnavneet.projects.ai_app_builder.mapper.SubscriptionMapper;
 import com.sbnavneet.projects.ai_app_builder.repository.PlanRepository;
+import com.sbnavneet.projects.ai_app_builder.repository.ProjectMemberRepository;
 import com.sbnavneet.projects.ai_app_builder.repository.SubscriptionRepository;
 import com.sbnavneet.projects.ai_app_builder.repository.UserRepository;
 import com.sbnavneet.projects.ai_app_builder.security.AuthUtility;
@@ -31,6 +32,7 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     private final AuthUtility authUtility;
     private final UserRepository userRepository;
     private final PlanRepository planRepository;
+    private final ProjectMemberRepository projectMemberRepository;
 
 
     @Override
@@ -106,6 +108,19 @@ public class SubscriptionServiceImpl implements SubscriptionService{
         subscriptionRepository.save(subscription);
     }
 
+    private final Integer FREE_TIER_PROJECT_ALLOWED = 1;
+    
+    @Override
+    public Boolean canCreateNewProject() {
+       SubscriptionResponse currentSubscription = getCurrentSubscription();
+
+       Integer countOfOwnedProjects = projectMemberRepository.countProjectOwnedByUser(authUtility.getCurrentUser());
+       if(currentSubscription.plan() == null){
+            return countOfOwnedProjects < FREE_TIER_PROJECT_ALLOWED;
+       }
+       return countOfOwnedProjects < currentSubscription.plan().maxProjects();
+    }
+
     //Utility Methods
     private Subscription getSubscription(String id){
         return subscriptionRepository.findByStripeSubscriptionId(id).orElseThrow(() -> new ResourceNotFoundException("Subscription Id" , id.toString()));
@@ -118,5 +133,6 @@ public class SubscriptionServiceImpl implements SubscriptionService{
     private Plan getPlan(Long planId){
         return planRepository.findById(planId).orElseThrow(() -> new ResourceNotFoundException("Plan", planId.toString()));
     }
+
 
 }

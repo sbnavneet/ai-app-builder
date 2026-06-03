@@ -24,4 +24,6 @@ public interface SubscriptionService {
 
     void handlePaymentFailure(String subcriptionId);
 
+    Boolean canCreateNewProject();
+
 }
