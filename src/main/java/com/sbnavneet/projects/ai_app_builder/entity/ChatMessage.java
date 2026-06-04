@@ -30,11 +30,11 @@ public class ChatMessage {
     Long id;
 
     @ManyToOne
-    @JoinColumn(name = "chat_session_id")
+    @JoinColumn(name = "chat_session_id")   
     ChatSession chatSession;
 
     String content;
-    String toolCalls;
+    String toolCalls; 
     Integer tokenUsed;
     
     @CreationTimestamp
