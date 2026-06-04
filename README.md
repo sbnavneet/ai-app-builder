@@ -151,3 +151,61 @@ An AI-powered development platform that enables users to generate, manage, and p
 - Multi-language Support
 - Team Collaboration
 - Cloud Deployment
+
+---
+
+## ⚙️ Setup
+
+### Prerequisites
+- Java 17
+- PostgreSQL
+- Docker (optional, for containerized DB)
+- Stripe CLI (for webhook testing)
+
+### Environment Variables
+Create a `.env` file in the project root:
+
+```
+DB_URL=jdbc:postgresql://localhost:9000/ai_app_builder_db
+DB_USERNAME=your_db_user
+DB_PASSWORD=your_db_password
+JWT_SECRET_KEY=your_jwt_secret_min_32_chars
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+### Run
+
+```bash
+./mvnw clean compile
+./mvnw spring-boot:run
+```
+
+### Stripe Webhooks (local testing)
+
+```bash
+stripe listen --forward-to http://localhost:8080/api/webhooks/payments
+```
+
+---
+
+## 🔐 Authorization
+
+Role-based access control with permission mapping:
+
+| Role | Permissions |
+|------|-------------|
+| OWNER | VIEW, EDIT, EDIT_FILES, DELETE, MANAGE_MEMBERS, VIEW_MEMBERS |
+| EDITOR | VIEW, VIEW_MEMBERS, EDIT_FILES |
+| VIEWER | VIEW, VIEW_MEMBERS |
+
+---
+
+## 🏗️ Architecture Notes
+
+- JWT-based stateless authentication (access + refresh tokens)
+- Role-Permission matrix for fine-grained authorization
+- Stripe webhooks for subscription lifecycle management
+- MapStruct for DTO mapping
+- Global exception handling with structured error responses
+- Environment variables externalized via spring-dotenv
