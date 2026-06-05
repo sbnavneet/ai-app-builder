@@ -1,3 +1,3 @@
-public record ChatRequest() {
+public record ChatRequest(String message, Long projectId) {
 
 }

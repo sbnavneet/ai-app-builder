@@ -166,7 +166,6 @@ An AI-powered development platform that enables users to generate, manage, and p
 Create a `.env` file in the project root:
 
 ```
-DB_URL=jdbc:postgresql://localhost:9000/ai_app_builder_db
 DB_USERNAME=your_db_user
 DB_PASSWORD=your_db_password
 JWT_SECRET_KEY=your_jwt_secret_min_32_chars
