@@ -19,7 +19,7 @@ public class ChatController {
 
 
     @PostMapping(value = "/api/chat/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public FLux<ServerSentEvent<String>> streamChat(@RequestBody ChatRequest request) {
+    public Flux<ServerSentEvent<String>> streamChat(@RequestBody ChatRequest request) {
         //TODO: process POST request
         
         return aiGenerationService.streamResponse(request.message(), request.projectId()).map(data -> ServerSentEvent.<String>builder().data(data).build());

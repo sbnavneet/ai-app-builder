@@ -108,7 +108,7 @@ public class SubscriptionServiceImpl implements SubscriptionService{
         subscriptionRepository.save(subscription);
     }
 
-    private final Integer FREE_TIER_PROJECT_ALLOWED = 1;
+    private final Integer FREE_TIER_PROJECT_ALLOWED = 100;
     
     @Override
     public Boolean canCreateNewProject() {
