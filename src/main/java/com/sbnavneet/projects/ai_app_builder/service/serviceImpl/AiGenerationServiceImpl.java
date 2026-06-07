@@ -1,13 +1,196 @@
-package com.sbnavneet.projects.ai_app_builder.service;
 
+
+
+
+// @Service
+// @RequiredArgsConstructor
+// @Slf4j
+// public class AiGenerationServiceImpl implements AiGenerationService {
+
+//     private final ChatClient chatClient;
+//     private final FileService fileService;
+//     private final AuthUtility authUtility;
+//     private final PromptUtils promptUtils;
+//     private final ProjectRepository projectRepository;
+//     private final UserRepository userRepository;
+//     private final ChatSessionRepository chatSessionRepository;
+//     private static final Pattern FILE_TAG_PATTERN = Pattern.compile("<file path=\"([^\"]+)\"(.*?)</file>", Pattern.DOTALL);
+    
+//     @Override
+//     @PreAuthorize("@security.canEditProjects(#projectId)")
+//     public Flux<String> streamResponse(String userMessage, Long projectId) {
+//         Long userId = authUtility.getCurrentUser();
+        
+//         createChatSessionIfNotExits(projectId, userId);
+        
+//         Map<String, Object> advisorParams = Map.of("userId", userId, "projectId", projectId);
+
+//         StringBuilder fullResponseBuffer =  new StringBuilder();
+//       return  chatClient.prompt()
+//                             .system(promptUtils.CODE_GENERATION_SYSTEM_PROMPT)
+//                             .user(userMessage)
+//                             .advisors(advisorSpec -> advisorSpec.params(advisorParams)
+//                         ).stream()
+//                         .chatResponse()
+//                         .doOnNext(response -> {
+//                             String content = response.getResult().getOutput().getText();
+//                             fullResponseBuffer.append(content);
+//                         })
+//                         .doOnComplete(() -> {
+//                             Schedulers.boundedElastic().schedule(() ->parseAndSaveFiles(fullResponseBuffer.toString(), projectId));
+//                         })
+//                         .doOnError((error) -> log.error("Error during streaming for project with projectId {}", projectId))
+//                         .map(response -> Objects.requireNonNull(response.getResult().getOutput().getText()));
+
+//     }
+
+
+
+//     private ChatSession createChatSessionIfNotExits(Long projectId, Long userId){
+//         ChatSessionId chatSessionId = new ChatSessionId(projectId, userId);
+//         ChatSession chatSession = chatSessionRepository.findById(chatSessionId).orElse(null);
+
+//         if(chatSession == null) {
+//             Project project = projectRepository.findById(projectId)
+//                     .orElseThrow(() -> new ResourceNotFoundException("Project", projectId.toString()));
+//             User user = userRepository.findById(userId)
+//                     .orElseThrow(() -> new ResourceNotFoundException("User", userId.toString()));
+
+//             chatSession = ChatSession.builder()
+//                     .id(chatSessionId)
+//                     .project(project)
+//                     .user(user)
+//                     .build();
+
+//             chatSession = chatSessionRepository.save(chatSession);
+//         }
+//         return chatSession;
+//     }
+
+// }
+package com.sbnavneet.projects.ai_app_builder.service.serviceImpl;
+import java.util.Map;
+import java.util.Objects;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.springframework.ai.chat.client.ChatClient;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+
+import com.sbnavneet.projects.ai_app_builder.dto.chat.StreamResponse;
+import com.sbnavneet.projects.ai_app_builder.entity.ChatSession;
+import com.sbnavneet.projects.ai_app_builder.entity.ChatSessionId;
+import com.sbnavneet.projects.ai_app_builder.entity.Project;
+import com.sbnavneet.projects.ai_app_builder.entity.User;
+import com.sbnavneet.projects.ai_app_builder.error.ResourceNotFoundException;
+import com.sbnavneet.projects.ai_app_builder.llm.PromptUtils;
+import com.sbnavneet.projects.ai_app_builder.repository.ChatSessionRepository;
+import com.sbnavneet.projects.ai_app_builder.repository.ProjectRepository;
+import com.sbnavneet.projects.ai_app_builder.repository.UserRepository;
+import com.sbnavneet.projects.ai_app_builder.security.AuthUtility;
+import com.sbnavneet.projects.ai_app_builder.service.AiGenerationService;
+import com.sbnavneet.projects.ai_app_builder.service.FileService;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
+import reactor.core.scheduler.Schedulers;
 
+@Service
+@RequiredArgsConstructor
+@Slf4j
 public class AiGenerationServiceImpl implements AiGenerationService {
 
+    private final ChatClient chatClient;
+    private final FileService fileService;
+    private final AuthUtility authUtility;
+    private final PromptUtils promptUtils;
+    private final ProjectRepository projectRepository;
+    private final UserRepository userRepository;
+    private final ChatSessionRepository chatSessionRepository;
+    private static final Pattern FILE_TAG_PATTERN = Pattern.compile("<file path=\"([^\"]+)\">(.*?)</file>", Pattern.DOTALL);
+   
     @Override
-    public Flux<String> streamResponse(String message, Long projectId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'streamResponse'");
-    }
+    @PreAuthorize("@security.canEditProjects(#projectId)")
+    public Flux<StreamResponse> streamResponse(String userMessage, Long projectId) {
 
+//        usageService.checkDailyTokensUsage();
+
+        Long userId = authUtility.getCurrentUser();
+        ChatSession chatSession = createChatSessionIfNotExists(projectId, userId);
+
+        Map<String, Object> advisorParams = Map.of(
+                "userId", userId,
+                "projectId", projectId
+        );
+        StringBuilder fullResponseBuffer = new StringBuilder();
+        return chatClient.prompt()
+                .system(promptUtils.CODE_GENERATION_SYSTEM_PROMPT)
+                .user(userMessage)
+                .advisors(advisorSpec -> {
+                            advisorSpec.params(advisorParams);
+                        }
+                )
+                .stream()
+                .chatResponse()
+                .log("CHAT_STREAM")
+                .doOnNext(response -> {
+                    String content = response.getResult().getOutput().getText();
+                    log.info("Chunk received: {}", content);
+                    fullResponseBuffer.append(content);
+                })
+                .doOnComplete(() -> {
+                    Schedulers.boundedElastic().schedule(() -> {
+                       parseAndSaveFiles(fullResponseBuffer.toString(), projectId);
+                    });
+                })
+                .doOnError(error -> log.error("Error during streaming for projectId: {}", projectId))
+                .map(response -> {
+                    String text = response.getResult().getOutput().getText();
+                    log.info("Text body: {} ", text);
+                    return new StreamResponse(text != null ? text : "");
+                });
+    }
+    private void parseAndSaveFiles(String response, Long projectId){
+        // String dummy = """
+        //                 <message> dummy text </message>
+        //                 <file path = "src/App,jsx">
+        //                 import App from './App.jsx'
+        //                 ....
+        //                 </file>
+        //                 <message> dummy text </message>                        
+        //                 <file path = "src/App,jsx">
+        //                 import App from './App.jsx'
+        //                 ....
+        //                 </file>
+        //                 """;
+        Matcher matcher = FILE_TAG_PATTERN.matcher(response);
+        while(matcher.find()){
+            String filePath = matcher.group(1);
+            String fileContent = matcher.group(2).trim();
+            fileService.saveFile(projectId, filePath, fileContent);
+        }
+    }
+    private ChatSession createChatSessionIfNotExists(Long projectId, Long userId) {
+        ChatSessionId chatSessionId = new ChatSessionId(projectId, userId);
+        ChatSession chatSession = chatSessionRepository.findById(chatSessionId).orElse(null);
+
+        if(chatSession == null) {
+            Project project = projectRepository.findById(projectId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Project", projectId.toString()));
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new ResourceNotFoundException("User", userId.toString()));
+
+            chatSession = ChatSession.builder()
+                    .id(chatSessionId)
+                    .project(project)
+                    .user(user)
+                    .build();
+
+            chatSession = chatSessionRepository.save(chatSession);
+        }
+        return chatSession;
+    }
 }

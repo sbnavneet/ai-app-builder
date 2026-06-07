@@ -7,8 +7,10 @@ import com.sbnavneet.projects.ai_app_builder.enums.ProjectRole;
 import com.sbnavneet.projects.ai_app_builder.repository.ProjectMemberRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Component("security")
+@Slf4j
 @RequiredArgsConstructor
 public class SecurityExpressions {
 
@@ -17,7 +19,11 @@ public class SecurityExpressions {
 
     public boolean hasPermissions(Long projectId, ProjectPermission projectPermission){
         Long userId = authUtility.getCurrentUser();
-        return projectMemberRepository.findRoleByProjectIdAndUserId(projectId, userId).map( role -> role.getPermissions().contains(projectPermission)).orElse(false);
+        log.info("projectId={}, userId={}, permission={}",projectId, userId, projectPermission);
+        var rrole = projectMemberRepository.findRoleByProjectIdAndUserId(projectId, userId);
+
+        log.info("role={}", rrole);
+        return projectMemberRepository.findRoleByProjectIdAndUserId(projectId, userId).map(role -> role.getPermissions().contains(projectPermission)).orElse(false);
     }
 
     public boolean canViewProjects(Long projectId){

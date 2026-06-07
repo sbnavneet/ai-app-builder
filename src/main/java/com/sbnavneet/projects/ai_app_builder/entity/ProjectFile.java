@@ -5,7 +5,9 @@ import java.time.Instant;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -17,7 +19,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
-// @Entity
+@Entity
 @Getter
 @Setter
 @AllArgsConstructor
@@ -27,17 +29,14 @@ public class ProjectFile {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
     Project project;
     
+    @Column(nullable = false)
     String path;
     
     String minioObjectKey;
-
-    @ManyToOne
-    @JoinColumn(name = "createdBy")
-    User createdBy;
     
     @ManyToOne
     User updatedBy;
