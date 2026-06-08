@@ -3,9 +3,9 @@ spring:
     name: ai-app-builder
 
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${POSTGRES_DB}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -19,7 +19,7 @@ spring:
         format_sql: true
   ai:
     openai:
-      api-key: ${OPENAI_API_KEY}
+      api-key: ${OPENROUTER_API_KEY}
       base-url: https://openrouter.ai/api
       chat:
         options:
