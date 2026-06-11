@@ -58,6 +58,7 @@ public class FileServiceImpl implements FileService{
         try{
            byte[] contentBytes = fileContent.getBytes(StandardCharsets.UTF_8);
            InputStream inputStream = new ByteArrayInputStream(contentBytes);
+           //Saving actual file
            minioClient.putObject(
                 PutObjectArgs.builder()
                     .bucket(projectBucket)
@@ -65,6 +66,7 @@ public class FileServiceImpl implements FileService{
                     .stream(inputStream, contentBytes.length, -1)
                     .contentType(determineContentType(cleanPath))
                     .build());
+            //Saving meta data to DB 
             ProjectFile file = projectFileRepository.findByProjectIdAndPath(projectId, cleanPath)
                 .orElseGet(()-> ProjectFile.builder()
                                 .project(project)
