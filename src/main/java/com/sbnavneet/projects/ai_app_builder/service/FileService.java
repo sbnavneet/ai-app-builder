@@ -8,7 +8,7 @@ import com.sbnavneet.projects.ai_app_builder.dto.project.FileNode;
 
 public interface FileService {
 
-    List<FileNode> getFileTree(Long projectId, Long userId);
+    List<FileNode> getFileTree(Long projectId);
 
     FileContentResponse getFile(Long projectId, String path, Long userId);
 

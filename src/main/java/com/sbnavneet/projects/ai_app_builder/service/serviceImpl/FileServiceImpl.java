@@ -44,7 +44,7 @@ public class FileServiceImpl implements FileService{
     }
 
     @Override
-    public List<FileNode> getFileTree(Long projectId, Long userId) {
+    public List<FileNode> getFileTree(Long projectId) {
         List<ProjectFile> projectFileList = projectFileRepository.findByProjectId(projectId);
         return projectFileMapper.toListOfFileNode(projectFileList);
     }
@@ -90,7 +90,6 @@ public class FileServiceImpl implements FileService{
         }
         if(path.endsWith(".json")) return "application/json";
         if(path.endsWith(".css")) return "text/css";
-        
         return "text/plain";
     }
 

@@ -13,7 +13,9 @@ import com.sbnavneet.projects.ai_app_builder.entity.ChatSessionId;
 import com.sbnavneet.projects.ai_app_builder.entity.Project;
 import com.sbnavneet.projects.ai_app_builder.entity.User;
 import com.sbnavneet.projects.ai_app_builder.error.ResourceNotFoundException;
+import com.sbnavneet.projects.ai_app_builder.llm.AiGenerationTools;
 import com.sbnavneet.projects.ai_app_builder.llm.PromptUtils;
+import com.sbnavneet.projects.ai_app_builder.llm.advisor.FileTreeContextAdvisor;
 import com.sbnavneet.projects.ai_app_builder.repository.ChatSessionRepository;
 import com.sbnavneet.projects.ai_app_builder.repository.ProjectRepository;
 import com.sbnavneet.projects.ai_app_builder.repository.UserRepository;
@@ -38,6 +40,8 @@ public class AiGenerationServiceImpl implements AiGenerationService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ChatSessionRepository chatSessionRepository;
+    private final FileTreeContextAdvisor fileTreeContextAdvisor;
+    private final AiGenerationTools codeGenerationTools;
     private static final Pattern FILE_TAG_PATTERN = Pattern.compile("<file path=\"([^\"]+)\">(.*?)</file>", Pattern.DOTALL);
    
     @Override
@@ -59,8 +63,10 @@ public class AiGenerationServiceImpl implements AiGenerationService {
                 .user(userMessage)
                 .advisors(advisorSpec -> {
                             advisorSpec.params(advisorParams);
+                            advisorSpec.advisors(fileTreeContextAdvisor);
                         }
                 )
+                .tools(codeGenerationTools)
                 .stream()
                 .chatResponse()
                 .log("CHAT_STREAM")
