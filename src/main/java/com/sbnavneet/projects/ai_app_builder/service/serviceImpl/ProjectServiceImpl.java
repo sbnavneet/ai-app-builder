@@ -22,6 +22,7 @@ import com.sbnavneet.projects.ai_app_builder.repository.ProjectRepository;
 import com.sbnavneet.projects.ai_app_builder.repository.UserRepository;
 import com.sbnavneet.projects.ai_app_builder.security.AuthUtility;
 import com.sbnavneet.projects.ai_app_builder.service.ProjectService;
+import com.sbnavneet.projects.ai_app_builder.service.ProjectTemplateService;
 import com.sbnavneet.projects.ai_app_builder.service.SubscriptionService;
 
 import jakarta.transaction.Transactional;
@@ -38,6 +39,7 @@ public class ProjectServiceImpl implements ProjectService{
     private final ProjectMemberRepository projectMemberRepository;
     private final AuthUtility authUtility;
     private final SubscriptionService subscriptionService;
+    private final ProjectTemplateService projectTemplateService;
 
     @Override
     public List<ProjectSummaryResponse> getUserProjects() {
@@ -78,6 +80,8 @@ public class ProjectServiceImpl implements ProjectService{
                                                             .invitedAt(Instant.now())
                                                             .build();
         projectMemberRepository.save(projectMember);
+
+        projectTemplateService.initializeProjectFromTemplate(project.getId());
         return projectMapper.toProjectResponse(project);
     }
 

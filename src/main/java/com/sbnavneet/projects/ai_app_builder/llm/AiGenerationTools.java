@@ -14,13 +14,14 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
-@Component
 public class AiGenerationTools {
 
     private final FileService projectFileService;
     private final Long projectid;
 
-    @Tool
+    @Tool(name ="read_files",
+        description = "Read the content of files. Only input the file names present inside the FILE_TREE. DO NOT input any other file outside the FILE_TREE"
+    )
     public List<String> readFiles(
         @ToolParam(description = "List of relative path (e.g., ['src/App.tsx])")
         List<String> paths
@@ -35,6 +36,6 @@ public class AiGenerationTools {
                 "--- START OF FILE: %s ---\n%s\n--- END OF FILE ---", cleanPath, content
             ));
         }
-        return result;  
+        return result;
     }
 }

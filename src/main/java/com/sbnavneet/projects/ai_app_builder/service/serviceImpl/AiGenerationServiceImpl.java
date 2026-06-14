@@ -41,15 +41,11 @@ public class AiGenerationServiceImpl implements AiGenerationService {
     private final UserRepository userRepository;
     private final ChatSessionRepository chatSessionRepository;
     private final FileTreeContextAdvisor fileTreeContextAdvisor;
-    private final AiGenerationTools codeGenerationTools;
     private static final Pattern FILE_TAG_PATTERN = Pattern.compile("<file path=\"([^\"]+)\">(.*?)</file>", Pattern.DOTALL);
    
     @Override
     @PreAuthorize("@security.canEditProjects(#projectId)")
     public Flux<StreamResponse> streamResponse(String userMessage, Long projectId) {
-
-//        usageService.checkDailyTokensUsage();
-
         Long userId = authUtility.getCurrentUser();
         ChatSession chatSession = createChatSessionIfNotExists(projectId, userId);
 
@@ -57,6 +53,7 @@ public class AiGenerationServiceImpl implements AiGenerationService {
                 "userId", userId,
                 "projectId", projectId
         );
+        AiGenerationTools codeGenerationTools = new AiGenerationTools(fileService, projectId);
         StringBuilder fullResponseBuffer = new StringBuilder();
         return chatClient.prompt()
                 .system(promptUtils.CODE_GENERATION_SYSTEM_PROMPT)

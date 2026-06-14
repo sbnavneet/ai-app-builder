@@ -20,6 +20,7 @@ import com.sbnavneet.projects.ai_app_builder.repository.ProjectFileRepository;
 import com.sbnavneet.projects.ai_app_builder.repository.ProjectRepository;
 import com.sbnavneet.projects.ai_app_builder.service.FileService;
 
+import io.minio.GetObjectArgs;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
 import lombok.RequiredArgsConstructor;
@@ -39,8 +40,20 @@ public class FileServiceImpl implements FileService{
     private String projectBucket;
 
     @Override
-    public FileContentResponse getFile(Long projectId, String path, Long userId) {
-        return null;
+    public FileContentResponse getFile(Long projectId, String path) {
+        String objectName = projectId + "/" + path ;
+        try(
+                InputStream is = minioClient.getObject(
+                    GetObjectArgs.builder()
+                                    .bucket(projectBucket)
+                                    .object(objectName)
+                                    .build())){
+            String content = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+            return new FileContentResponse(path, content);
+        }catch(Exception e){
+            log.info("Failed to read file: {}/{}", projectId, path,e);
+            throw new RuntimeException("Failed to read file content", e);
+        }
     }
 
     @Override

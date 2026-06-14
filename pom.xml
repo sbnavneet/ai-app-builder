@@ -8,11 +8,11 @@
 		<version>4.0.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.codingshuttle.projects</groupId>
-	<artifactId>lovable-clone</artifactId>
+	<groupId>com.sbnavneet.projects</groupId>
+	<artifactId>ai-app-builder</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>lovable-clone</name>
-	<description>Lovable Clone in Spring Boot 0 To 100 Course</description>
+	<name>Ai App Builder</name>
+	<description>Ai App Builder</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -131,11 +131,6 @@
 		    <artifactId>springboot4-dotenv</artifactId>
 		    <version>5.1.0</version>
 		    <optional>true</optional>
-		</dependency>
-		<dependency>
-			<groupId>io.minio</groupId>
-			<artifactId>minio</artifactId>
-			<version>8.6.0</version>
 		</dependency>
     </dependencies>
 

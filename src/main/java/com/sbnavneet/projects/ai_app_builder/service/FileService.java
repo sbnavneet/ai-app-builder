@@ -10,7 +10,7 @@ public interface FileService {
 
     List<FileNode> getFileTree(Long projectId);
 
-    FileContentResponse getFile(Long projectId, String path, Long userId);
+    FileContentResponse getFile(Long projectId, String path);
 
     void saveFile(Long projectId, String filePath, String fileContent);
 }
