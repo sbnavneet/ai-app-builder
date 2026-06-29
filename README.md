@@ -82,66 +82,57 @@ An AI-powered development platform that enables users to generate, manage, and p
 ## 📡 APIs
 
 ### Auth APIs
-| Method | Endpoint |
-|---|---|
-| POST | `/api/auth/login` |
-| POST | `/api/auth/signup` |
-| GET | `/api/auth/me` |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/auth/login` | Login with email/password |
+| POST | `/api/auth/signup` | Register new user |
+| POST | `/api/auth/refresh` | Refresh access token |
+| GET | `/api/auth/profile` | Get current user profile |
 
 ### Project APIs
-| Method | Endpoint |
-|---|---|
-| CRUD | `/api/projects/{id}` |
-| GET | `/api/projects` |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/project` | List all user projects |
+| GET | `/project/{id}` | Get project by ID |
+| POST | `/project` | Create new project |
+| PATCH | `/project/{id}` | Update project |
+| DELETE | `/project/{id}` | Soft delete project |
 
 ### File APIs
-| Method | Endpoint |
-|---|---|
-| GET | `/api/projects/{id}/files` |
-| GET | `/api/projects/{id}/files/**` |
-| GET | `/api/projects/{id}/download-zip` |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/projects/{projectId}/files` | Get file tree |
+| GET | `/api/projects/{projectId}/files/{*path}` | Get file content by path |
 
 ### Members APIs
-| Method | Endpoint |
-|---|---|
-| GET | `/api/projects/{id}/members` |
-| POST | `/api/projects/{id}/members` |
-| PATCH | `/api/projects/{id}/members/{userId}` |
-| DELETE | `/api/projects/{id}/members/{userId}` |
-
-### Subscription APIs
-| Method | Endpoint |
-|---|---|
-| GET | `/api/plans` |
-| GET | `/api/me/subscription` |
-
-### Stripe APIs
-| Method | Endpoint |
-|---|---|
-| POST | `/api/stripe/checkout` |
-| POST | `/api/stripe/portal` |
-
-### Usage APIs
-| Method | Endpoint |
-|---|---|
-| GET | `/api/usage/today` |
-| GET | `/api/usage/limits` |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/projects/{projectId}/members` | List project members |
+| POST | `/api/projects/{projectId}/members` | Invite a member |
+| PATCH | `/api/projects/{projectId}/members/{memberId}` | Update member role |
+| DELETE | `/api/projects/{projectId}/members/{memberId}` | Remove member |
+| PATCH | `/api/projects/{projectId}/members/accept` | Accept invite |
 
 ### Chat APIs
-| Method | Endpoint |
-|---|---|
-| GET | `/api/projects/{id}/chat-sessions` |
-| POST | `/api/projects/{id}/chat-sessions` |
-| GET | `/api/chat/sessions/{sessionId}/messages` |
-| POST | `/api/chat/stream` |
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | `/api/chat/stream` | SSE stream AI code generation |
+| GET | `/projects/{projectId}` | Get project chat history |
 
-### Preview APIs
-| Method | Endpoint |
-|---|---|
-| POST | `/api/projects/{id}/preview` |
-| GET | `/api/previews/{previewId}/status` |
-| SSE | `/api/previews/{previewId}/logs` |
-| DELETE | `/api/previews/{previewId}` |
+### Billing & Subscription APIs
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/plans` | List all plans |
+| GET | `/api/me/subscription` | Get current subscription |
+| POST | `/api/payments/checkout` | Create Stripe checkout session |
+| POST | `/api/payments/portal` | Open Stripe customer portal |
+| POST | `/api/webhooks/payments` | Stripe webhook handler |
+
+### Usage APIs
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/api/usage/today` | Get today's token usage |
+| GET | `/api/usage/limits` | Get current plan limits |
 
 ---
 
