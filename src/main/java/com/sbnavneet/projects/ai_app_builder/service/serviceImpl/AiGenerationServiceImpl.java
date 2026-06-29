@@ -1,21 +1,26 @@
 package com.sbnavneet.projects.ai_app_builder.service.serviceImpl;
+import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import com.sbnavneet.projects.ai_app_builder.dto.chat.StreamResponse;
+import com.sbnavneet.projects.ai_app_builder.entity.ChatEvent;
+import com.sbnavneet.projects.ai_app_builder.entity.ChatMessage;
 import com.sbnavneet.projects.ai_app_builder.entity.ChatSession;
 import com.sbnavneet.projects.ai_app_builder.entity.ChatSessionId;
 import com.sbnavneet.projects.ai_app_builder.entity.Project;
 import com.sbnavneet.projects.ai_app_builder.entity.User;
+import com.sbnavneet.projects.ai_app_builder.enums.ChatEventType;
+import com.sbnavneet.projects.ai_app_builder.enums.MessageRole;
 import com.sbnavneet.projects.ai_app_builder.error.ResourceNotFoundException;
 import com.sbnavneet.projects.ai_app_builder.llm.AiGenerationTools;
+import com.sbnavneet.projects.ai_app_builder.llm.LlmResponseParser;
 import com.sbnavneet.projects.ai_app_builder.llm.PromptUtils;
 import com.sbnavneet.projects.ai_app_builder.llm.advisor.FileTreeContextAdvisor;
+import com.sbnavneet.projects.ai_app_builder.repository.ChatMessageRepository;
 import com.sbnavneet.projects.ai_app_builder.repository.ChatSessionRepository;
 import com.sbnavneet.projects.ai_app_builder.repository.ProjectRepository;
 import com.sbnavneet.projects.ai_app_builder.repository.UserRepository;
@@ -36,13 +41,13 @@ public class AiGenerationServiceImpl implements AiGenerationService {
     private final ChatClient chatClient;
     private final FileService fileService;
     private final AuthUtility authUtility;
-    private final PromptUtils promptUtils;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ChatSessionRepository chatSessionRepository;
     private final FileTreeContextAdvisor fileTreeContextAdvisor;
-    private static final Pattern FILE_TAG_PATTERN = Pattern.compile("<file path=\"([^\"]+)\">(.*?)</file>", Pattern.DOTALL);
-   
+    private final LlmResponseParser llmResponseParser;
+    private final ChatMessageRepository chatMessageRepository;
+
     @Override
     @PreAuthorize("@security.canEditProjects(#projectId)")
     public Flux<StreamResponse> streamResponse(String userMessage, Long projectId) {
@@ -56,7 +61,7 @@ public class AiGenerationServiceImpl implements AiGenerationService {
         AiGenerationTools codeGenerationTools = new AiGenerationTools(fileService, projectId);
         StringBuilder fullResponseBuffer = new StringBuilder();
         return chatClient.prompt()
-                .system(promptUtils.CODE_GENERATION_SYSTEM_PROMPT)
+                .system(PromptUtils.CODE_GENERATION_SYSTEM_PROMPT)
                 .user(userMessage)
                 .advisors(advisorSpec -> {
                             advisorSpec.params(advisorParams);
@@ -74,7 +79,7 @@ public class AiGenerationServiceImpl implements AiGenerationService {
                 })
                 .doOnComplete(() -> {
                     Schedulers.boundedElastic().schedule(() -> {
-                       parseAndSaveFiles(fullResponseBuffer.toString(), projectId);
+                        finalizeChats(userMessage, chatSession, fullResponseBuffer.toString(), projectId);
                     });
                 })
                 .doOnError(error -> log.error("Error during streaming for projectId: {}", projectId))
@@ -84,26 +89,37 @@ public class AiGenerationServiceImpl implements AiGenerationService {
                     return new StreamResponse(text != null ? text : "");
                 });
     }
-    private void parseAndSaveFiles(String response, Long projectId){
-        // String dummy = """
-        //                 <message> dummy text </message>
-        //                 <file path = "src/App,jsx">
-        //                 import App from './App.jsx'
-        //                 ....
-        //                 </file>
-        //                 <message> dummy text </message>                        
-        //                 <file path = "src/App,jsx">
-        //                 import App from './App.jsx'
-        //                 ....
-        //                 </file>
-        //                 """;
-        Matcher matcher = FILE_TAG_PATTERN.matcher(response);
-        while(matcher.find()){
-            String filePath = matcher.group(1);
-            String fileContent = matcher.group(2).trim();
-            fileService.saveFile(projectId, filePath, fileContent);
-        }
+
+    private void finalizeChats(String userMessage, ChatSession chatSession, String fullText, Long projectId){
+        // Save the user message
+        chatMessageRepository.save(
+            ChatMessage.builder()
+                .chatSession(chatSession)
+                .content(userMessage)
+                .role(MessageRole.USER)
+                .build()
+        );
+
+        // Build assistant message
+        ChatMessage assistantChatMessage = ChatMessage.builder()
+                .role(MessageRole.ASSISTANT)
+                .chatSession(chatSession)
+                .content(fullText)
+                .build();
+
+        // Parse events and attach to the message
+        List<ChatEvent> chatEventList = llmResponseParser.parseChatEvents(fullText, assistantChatMessage);
+        assistantChatMessage.setChatEvents(chatEventList);
+
+        // Save files from FILE_EDIT events
+        chatEventList.stream()
+                .filter(e -> e.getChatEventType() == ChatEventType.FILE_EDIT)
+                .forEach(e -> fileService.saveFile(projectId, e.getFilePath(), e.getContent()));
+
+        // Single save — cascade persists the events automatically
+        chatMessageRepository.save(assistantChatMessage);
     }
+
     private ChatSession createChatSessionIfNotExists(Long projectId, Long userId) {
         ChatSessionId chatSessionId = new ChatSessionId(projectId, userId);
         ChatSession chatSession = chatSessionRepository.findById(chatSessionId).orElse(null);

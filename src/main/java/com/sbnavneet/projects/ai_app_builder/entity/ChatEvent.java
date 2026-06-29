@@ -1,7 +1,5 @@
 package com.sbnavneet.projects.ai_app_builder.entity;
 
-import org.hibernate.annotations.ManyToAny;
-
 import com.sbnavneet.projects.ai_app_builder.enums.ChatEventType;
 
 import jakarta.persistence.Column;
@@ -24,11 +22,13 @@ import lombok.NoArgsConstructor;
 @Table(name = "chat_events")
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ChatEvent {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id; 
+    Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)

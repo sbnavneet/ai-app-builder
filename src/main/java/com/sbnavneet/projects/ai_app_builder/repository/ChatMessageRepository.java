@@ -12,10 +12,10 @@ import java.util.List;
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
 
     @Query("""
-        SELECT DISTINCT cm FROM ChatMessage cm 
-        LEFT JOIN FETCH m.events 
-        WHERE m.chatSession = :chatSession
-        ORDER BY m.createdAt ASC, e.seqOrder ASC
+        SELECT DISTINCT cm FROM ChatMessage cm
+        LEFT JOIN FETCH cm.chatEvents e
+        WHERE cm.chatSession = :chatSession
+        ORDER BY cm.createdAt ASC, e.seqOrder ASC
         """)
     List<ChatMessage> findByChatSession(ChatSession chatSession);
 }
