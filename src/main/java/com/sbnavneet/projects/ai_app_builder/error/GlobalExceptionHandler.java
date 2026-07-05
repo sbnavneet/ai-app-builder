@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,6 +54,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiError> handleBadCredentials(BadCredentialsException ex){
+        ApiError error = new ApiError(HttpStatus.UNAUTHORIZED, "Invalid username or password");
+        return ResponseEntity.status(error.status()).body(error);
+    }
+
+    @ExceptionHandler(InternalAuthenticationServiceException.class)
+    public ResponseEntity<ApiError> handleAuthServiceException(InternalAuthenticationServiceException ex){
         ApiError error = new ApiError(HttpStatus.UNAUTHORIZED, "Invalid username or password");
         return ResponseEntity.status(error.status()).body(error);
     }

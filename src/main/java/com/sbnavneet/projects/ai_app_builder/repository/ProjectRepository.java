@@ -18,7 +18,6 @@ public interface ProjectRepository extends JpaRepository<Project, Long> {
             JOIN ProjectMember pm ON pm.project = p
             WHERE p.deletedAt IS NULL
             AND pm.user.id = :userId
-            AND pm.role = com.sbnavneet.projects.ai_app_builder.enums.ProjectRole.OWNER
             ORDER BY p.updatedAt DESC
             """)
     List<Project> findAllProjectByOwner(@Param("userId") Long ownerId);
