@@ -73,9 +73,13 @@ An AI-powered development platform that enables users to generate, manage, and p
 ### Payments
 - Stripe
 
-### Frontend (Planned)
-- React
-- Tailwind CSS
+### Frontend
+- React 18
+- TypeScript
+- Vite
+- Tailwind CSS 4
+- daisyUI v5
+- Monaco Editor
 
 ---
 
