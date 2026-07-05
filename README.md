@@ -149,8 +149,9 @@ An AI-powered development platform that enables users to generate, manage, and p
 
 ### Prerequisites
 - Java 17
+- Node.js 18+
 - PostgreSQL
-- Docker (optional, for containerized DB)
+- Docker (for PostgreSQL, MinIO, pgvector)
 - Stripe CLI (for webhook testing)
 
 ### Environment Variables
@@ -159,17 +160,37 @@ Create a `.env` file in the project root:
 ```
 DB_USERNAME=your_db_user
 DB_PASSWORD=your_db_password
+POSTGRES_DB=your_db_name
 JWT_SECRET_KEY=your_jwt_secret_min_32_chars
 STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
+OPENAI_API_KEY=sk-...
+MINIO_ACCESS_KEY=your_minio_access_key
+MINIO_SECRET_KEY=your_minio_secret_key
 ```
 
-### Run
+### Run Backend
 
 ```bash
+# Start infrastructure (PostgreSQL, MinIO)
+docker compose -f services.docker-compose.yml up -d
+
+# Compile and run
 ./mvnw clean compile
 ./mvnw spring-boot:run
 ```
+
+Backend runs at `http://localhost:8080`
+
+### Run Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Frontend runs at `http://localhost:3000` (proxies API calls to backend)
 
 ### Stripe Webhooks (local testing)
 
