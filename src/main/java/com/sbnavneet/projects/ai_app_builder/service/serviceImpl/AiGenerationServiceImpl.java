@@ -17,6 +17,7 @@ import com.sbnavneet.projects.ai_app_builder.enums.ChatEventType;
 import com.sbnavneet.projects.ai_app_builder.enums.MessageRole;
 import com.sbnavneet.projects.ai_app_builder.error.ResourceNotFoundException;
 import com.sbnavneet.projects.ai_app_builder.llm.AiGenerationTools;
+import com.sbnavneet.projects.ai_app_builder.llm.InputGuardrail;
 import com.sbnavneet.projects.ai_app_builder.llm.LlmResponseParser;
 import com.sbnavneet.projects.ai_app_builder.llm.PromptUtils;
 import com.sbnavneet.projects.ai_app_builder.llm.advisor.FileTreeContextAdvisor;
@@ -47,10 +48,19 @@ public class AiGenerationServiceImpl implements AiGenerationService {
     private final FileTreeContextAdvisor fileTreeContextAdvisor;
     private final LlmResponseParser llmResponseParser;
     private final ChatMessageRepository chatMessageRepository;
+    private final InputGuardrail inputGuardrail;
 
     @Override
     @PreAuthorize("@security.canEditProjects(#projectId)")
     public Flux<StreamResponse> streamResponse(String userMessage, Long projectId) {
+        // Guardrail check — reject off-topic / injection attempts before hitting the LLM
+        InputGuardrail.GuardrailResult guardrailResult = inputGuardrail.validate(userMessage);
+        if (!guardrailResult.allowed()) {
+            return Flux.just(new StreamResponse(
+                "<message phase=\"completed\">" + guardrailResult.rejectionMessage() + "</message>"
+            ));
+        }
+
         Long userId = authUtility.getCurrentUser();
         ChatSession chatSession = createChatSessionIfNotExists(projectId, userId);
 
